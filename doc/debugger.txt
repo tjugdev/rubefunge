@@ -1,0 +1,34 @@
+quit
+q
+    Quit.
+
+load [FILE]
+l [FILE]
+    Load Befunge program specified by FILE.  If FILE isn't given, reload current program.
+
+reload
+rl
+    Same as 'load' with no arguments
+
+step [COUNT]
+s [COUNT]
+    Make COUNT steps in currently loaded program.  If COUNT isn't given, the default is 1.
+
+run
+    Run currently loaded program until breakpoint is reached or program ends.
+
+break PC_X PC_Y
+b PC_X PC_Y
+    Toggle program breakpoint at the instruction located at (PC_X, PC_Y).
+
+info
+i
+    Display information about current status of program.  Information includes:
+        - Command located at current PC
+        - Current PC coordinates
+        - Current direction
+        - String mode?
+        - Top elements of the stack
+
+display
+    Toggle display of info after every step, or after each time the program breaks.
