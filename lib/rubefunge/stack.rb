@@ -1,7 +1,7 @@
 module Rubefunge
   class Stack
-    def initialize
-      @stack = []
+    def initialize(stack = [])
+      @stack = stack
     end
 
     def push(value)
@@ -21,6 +21,8 @@ module Rubefunge
     end
 
     def swap
+      return unless @stack.length >= 2
+
       val1 = pop
       val2 = pop
       push val1
@@ -28,7 +30,13 @@ module Rubefunge
     end
 
     def duplicate
+      return unless @stack.length > 0
+
       push top
+    end
+
+    def to_a
+      return @stack
     end
   end
 end

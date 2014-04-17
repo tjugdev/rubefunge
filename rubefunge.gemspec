@@ -14,9 +14,10 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   << "rubefunge"
-  spec.test_files    = Dir.glob("test/test_*.rb")
+  spec.test_files    = Dir.glob("test/*_test.rb")
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "minitest", ">= 5.3"
 end

@@ -10,7 +10,7 @@ module Rubefunge
         lines.each_index do |i|
           lines[i].rstrip!
           @field[i].insert(0, lines[i])
-          @field[i].slice!(FIELD_WIDTH + 1, -1)  
+          @field[i].slice!(FIELD_WIDTH..-1)
           warn "Input line has been truncated" if lines[i].length > FIELD_WIDTH
         end
       end
@@ -24,8 +24,8 @@ module Rubefunge
       @field[y][x] = value if valid_pos?(x, y)
     end
 
-    def display
-      @field.each {|l| puts l}
+    def to_s
+      @field.join "\n"
     end
 
     private
