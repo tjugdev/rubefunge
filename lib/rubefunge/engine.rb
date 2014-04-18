@@ -3,6 +3,7 @@ require "rubefunge/playfield"
 
 module Rubefunge
   class Engine
+
     UP    = 0
     RIGHT = 1
     DOWN  = 2
