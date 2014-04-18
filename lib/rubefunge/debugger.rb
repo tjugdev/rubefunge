@@ -25,6 +25,13 @@ module Rubefunge
     }
     @debug_cmds.default = :invalid_cmd
 
+    module PrintWithNewLine
+      def print(*args)
+        super(*args)
+        puts
+      end
+    end
+
     def initialize(file, options = {})
       super
 
@@ -50,15 +57,7 @@ module Rubefunge
 
     def get_engine playfield
       writer = $stdout
-      class << writer
-        attr_writer :should_print_new_line
-
-        def print(*args)
-          super
-          puts if @should_print_new_line
-        end
-      end
-      writer.should_print_new_line = @options.newline
+      writer.extend PrintWithNewLine if @options.newline
 
       Engine.new playfield, writer
     end
