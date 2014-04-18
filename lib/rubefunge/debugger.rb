@@ -27,6 +27,7 @@ module Rubefunge
 
     def initialize(file, options = {})
       super
+
       @breakpoints = []
       @display = false
       @stepno = 0
@@ -41,13 +42,31 @@ module Rubefunge
     end
 
     def load_field(file = @filename)
-      super
+      playfield = super
       message "#{file} loaded." unless file == :no_file
+
+      playfield
+    end
+
+    def get_engine playfield
+      writer = $stdout
+      class << writer
+        attr_writer :should_print_new_line
+
+        def print(*args)
+          super
+          puts if @should_print_new_line
+        end
+      end
+      writer.should_print_new_line = @options.newline
+
+      Engine.new playfield, writer
     end
 
     def reset
       if @filename != :no_file
-        super
+        @engine.reset
+
         @stepno = 0
         message "#{@filename} reset."
       else
@@ -56,25 +75,22 @@ module Rubefunge
     end
 
     def step
-      if @running
-        super
+      if @engine.running
+        @engine.step
         @stepno += 1
-        message "Program terminated." if !@running
+        message "Program terminated." if !@engine.running
       else
         message "Cannot step. No program running."
       end
     end
 
     def run
-      print "#{@stepno} > "
-      input = STDIN.gets.chomp
-      cmd, argv = debug_cmd_parse(input)
-      until cmd == :quit
-        debug_cmd_process(cmd, argv)
+      begin
         print "#{@stepno} > "
         input = STDIN.gets.chomp
         cmd, argv = debug_cmd_parse(input)
-      end
+        debug_cmd_process(cmd, argv)
+      end until cmd == :quit
     end
 
     def message(msg, type = :message)
@@ -85,12 +101,12 @@ module Rubefunge
     private
     def info
       dirs = ["up", "right", "down", "left"]
-      stringmode = @stringmode ? "\tSTRINGMODE" : ""
-      cmd = @field.get(@pc_x, @pc_y)
+      stringmode = @engine.stringmode ? "\tSTRINGMODE" : ""
+      cmd = @engine.field.get(@engine.pc_x, @engine.pc_y)
       cmd = "NOP" if cmd == " \t"
       return <<-EOF.gsub(/^ {8}/, '')
-        cmd: #{cmd}\tpc: (#{@pc_x}, #{@pc_y})\tdir: #{dirs[@dir]}#{stringmode}
-        stack top 5: #{@stack.tail(5).to_s}
+        cmd: #{cmd}\tpc: (#{@engine.pc_x}, #{@engine.pc_y})\tdir: #{dirs[@engine.dir]}#{stringmode}
+        stack top 5: #{@engine.stack.tail(5).to_s}
       EOF
     end
 
@@ -119,14 +135,14 @@ module Rubefunge
     end
 
     def run_to_break
-      if !@running
+      if !@engine.running
         message "Cannot run. Program has ended."
       end
 
-      while @running
+      while @engine.running
         step
-        if @breakpoints.include? [@pc_x, @pc_y]
-          message "Breakpoint found: (#{@pc_x}, #{@pc_y})."
+        if @breakpoints.include? [@engine.pc_x, @engine.pc_y]
+          message "Breakpoint found: (#{@engine.pc_x}, #{@engine.pc_y})."
           return
         end
       end
@@ -171,7 +187,7 @@ module Rubefunge
           reset
         elsif argc == 1
           if File.file? argv[0]
-            load_field(argv[0])
+            init_engine argv[0]
             reset
           else
             message "Cannot open #{argv[0]}. Does not exist.", :error
@@ -205,10 +221,5 @@ module Rubefunge
       end
     end
 
-    # If @options.newline is set, then print we should be printing a new line after each output
-    def interpreter_print(val)
-      print val
-      puts if @options.newline
-    end
   end
 end
