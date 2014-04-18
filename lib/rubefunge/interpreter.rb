@@ -14,18 +14,19 @@ module Rubefunge
     def initialize(file = :no_file, options = {})
       @options = Options.new(options)
       @running = false
+      @filename = :nofile
 
       load_field(file)
       reset
     end
 
-    def load_field(file = @options.filename)
-      if !File.file? file and file != :no_file
+    def load_field(file = @filename)
+      if file != :no_file and !File.file? file
         raise StandardError, "Cannot open #{file}.  Does not exist."
       end
 
-      @options.filename = file
-      input = File.open(file, "r") {|f| f.read} unless @options.filename == :no_file
+      @filename = file
+      input = File.open(file, "r") {|f| f.read} unless @filename == :no_file
       @field = Playfield.new(input)
     end
 

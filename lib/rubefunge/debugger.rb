@@ -40,16 +40,16 @@ module Rubefunge
       return @debug_cmds
     end
 
-    def load_field(file = @options.filename)
+    def load_field(file = @filename)
       super
       message "#{file} loaded." unless file == :no_file
     end
 
     def reset
-      if @options.filename != :no_file
+      if @filename != :no_file
         super
         @stepno = 0
-        message "#{@options.filename} reset."
+        message "#{@filename} reset."
       else
         message "No program loaded."
       end
@@ -155,7 +155,7 @@ module Rubefunge
           end
         elsif argc == 2
           if argv[0] =~ /-?\d+/ and argv[1] =~ /-?\d+/
-           toggle_breakpoint(argv[0].to_i, argv[1].to_i) 
+           toggle_breakpoint(argv[0].to_i, argv[1].to_i)
           else
             message "Arguments no '#{cmd.to_s}' must be integers.", :error
           end
