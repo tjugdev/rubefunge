@@ -66,7 +66,7 @@ module Rubefunge
       def run
         begin
           print "#{@stepno} > "
-          input = STDIN.gets.chomp
+          input = $stdin.gets.chomp
           begin
             cmd, argv = @command_parser.parse!(input)
             debug_cmd_process(cmd, argv)
@@ -95,22 +95,22 @@ module Rubefunge
 
       def toggle_breakpoint(x, y)
         if x < 0 or y < 0 or x >= Playfield::FIELD_WIDTH or y >= Playfield::FIELD_HEIGHT
-          message "Invalid location for breakpoint: (#{x}, #{y})"
+          message("Invalid location for breakpoint: (#{x}, #{y})")
         else
           loc = @breakpoints.index [x, y]
           if loc
             @breakpoints.delete_at(loc)
-            message "Breakpoint removed."
+            message("Breakpoint removed.")
           else
             @breakpoints << [x, y]
-            message "Breakpoint set."
+            message("Breakpoint set.")
           end
         end
       end
 
       def list_breakpoints
         if @breakpoints.empty?
-          message "No breakpoints set."
+          message("No breakpoints set.")
         else
           print "Breakpoints found at: "
           @breakpoints.each do |bp|
@@ -123,13 +123,13 @@ module Rubefunge
 
       def run_to_break
         if !@engine.running
-          message "Cannot run. Program has ended."
+          message("Cannot run. Program has ended.")
         end
 
         while @engine.running
           step
           if @breakpoints.include? [@engine.pc_x, @engine.pc_y]
-            message "Breakpoint found: (#{@engine.pc_x}, #{@engine.pc_y})."
+            message("Breakpoint found: (#{@engine.pc_x}, #{@engine.pc_y}).")
             return
           end
         end
@@ -173,9 +173,9 @@ module Rubefunge
           when :step
             count = argc === 0 ? 1 : argv[0].to_x
             if count <= 0
-              message "Invalid argument '#{count}' for command '#{cmd.to_s}'.", :error
+              message("Invalid argument '#{count}' for command '#{cmd.to_s}'.", :error)
             else
-              message "To many arguments for command '#{cmd.to_s}'.", :error
+              message("To many arguments for command '#{cmd.to_s}'.", :error)
               return
             end
             count.times {step}

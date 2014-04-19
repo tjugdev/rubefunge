@@ -3,6 +3,7 @@ require "optparse"
 
 module Rubefunge
   class Exec
+
     def initialize(args)
       @args = args
       @options = {:runtime_opts => {}}
@@ -35,19 +36,22 @@ module Rubefunge
       option_parser.parse! @args
 
       file = @args.empty? ? :no_file : @args[0]
+      options = Options.new(@options[:runtime_opts])
+
       if @options[:debug]
-        @interpreter = Debugger::Debugger.new(file, @options[:runtime_opts])
-      elsif !@options[:debug] and file != :no_file
-        @interpreter = Interpreter.new(file, @options[:runtime_opts])
+        @interpreter = Debugger::Debugger.new(file, options)
+      elsif !@options[:debug] && file != :no_file
+        @interpreter = Interpreter.new(file, options)
       else
         puts "Invalid arguments"
         puts option_parser.help
-        exit
+        exit false
       end
     end
 
     def run
       @interpreter.run
     end
+
   end
 end
