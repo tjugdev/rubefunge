@@ -135,9 +135,9 @@ module Rubefunge
         argc = argv.length
 
         case cmd
-          when :break_clear
+          when :breakclear
             @breakpoints = []
-          when :break_list
+          when :breaklist
             list_breakpoints
           when :break
             if argv[0] =~ /\d+/ && argv[1] =~ /\d+/

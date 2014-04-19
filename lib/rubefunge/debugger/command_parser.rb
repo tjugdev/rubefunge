@@ -13,10 +13,10 @@ module Rubefunge
             cmd = :break
             check_arguments(cmd, argv, [2])
           when "breakclear", "bc"
-            cmd = :break_clear
+            cmd = :breakclear
             check_arguments(cmd, argv, [0])
           when "breaklist", "bl"
-            cmd = :break_list
+            cmd = :breaklist
             check_arguments(cmd, argv, [0])
           when "display", "d"
             cmd = :display
@@ -40,7 +40,7 @@ module Rubefunge
             cmd = :step
             check_arguments(cmd, argv, [0, 1])
           else
-            raise RuntimeError, "Unknown command #{cmd_str}"
+            raise RuntimeError, "Unknown command: #{cmd_str}"
         end
         return cmd, argv
       end
