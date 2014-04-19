@@ -186,18 +186,18 @@ class EngineTest < MiniTest::Test
   end
 
   private
-  def run_for input, writer = $stdout, reader = $stdout, &block
+  def run_for(input, writer = $stdout, reader = $stdout, &block)
     begin
       Timeout::timeout(TIMEOUT_SECONDS) {
-        field = Rubefunge::Playfield.new input
+        field = Rubefunge::Playfield.new(input)
 
-        engine = Rubefunge::Engine.new field, writer, reader
+        engine = Rubefunge::Engine.new(field, writer, reader)
         engine.run
 
         yield engine if block_given?
       }
     rescue Timeout::Error
-      fail_test "Test timed out.  Maybe caught in an infinite loop?"
+      flunk("Test timed out.  Maybe caught in an infinite loop?")
     end
   end
 
