@@ -1,5 +1,6 @@
 module Rubefunge
   class Playfield
+
     FIELD_WIDTH   = 80
     FIELD_HEIGHT  = 25
 
@@ -9,7 +10,7 @@ module Rubefunge
         line.slice!(FIELD_WIDTH..-1)
         line
       end
-      @field.concat(Array.new(FIELD_HEIGHT - input.lines.length) {' ' * FIELD_WIDTH})
+      @field.concat(Array.new(FIELD_HEIGHT - @field.length) {' ' * FIELD_WIDTH})
     end
 
     def get(x, y)
@@ -28,5 +29,6 @@ module Rubefunge
     def valid_pos?(x, y)
       (x >= 0 and x < FIELD_WIDTH and y >= 0 and y < FIELD_HEIGHT)
     end
+
   end
 end

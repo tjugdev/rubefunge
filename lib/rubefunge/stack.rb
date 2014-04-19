@@ -1,5 +1,6 @@
 module Rubefunge
   class Stack
+
     def initialize(stack = [])
       @stack = stack
     end
@@ -38,5 +39,6 @@ module Rubefunge
     def to_a
       return @stack
     end
+
   end
 end

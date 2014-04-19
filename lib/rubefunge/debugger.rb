@@ -2,7 +2,9 @@ require "rubefunge/interpreter"
 
 module Rubefunge
   class Debugger < Interpreter
-    @msg_prefixes = { :message => "", :warning => "Warning: ", :error => "Error: " }
+
+    @msg_prefixes = {:message => "", :warning => "Warning: ", :error => "Error: "}
+
     # See doc/debugger.txt for description and usage of debugger commands.
     @debug_cmds  = {
       ""        => :blank,
@@ -110,13 +112,17 @@ module Rubefunge
     end
 
     def toggle_breakpoint(x, y)
-      loc = @breakpoints.index [x, y]
-      if loc
-        @breakpoints.delete_at(loc)
-        message "Breakpoint removed."
+      if x < 0 or y < 0 or x >= Playfield::FIELD_WIDTH or y >= Playfield::FIELD_HEIGHT
+        message "Invalid location for breakpoint: (#{x}, #{y})"
       else
-        @breakpoints << [x, y]
-        message "Breakpoint set."
+        loc = @breakpoints.index [x, y]
+        if loc
+          @breakpoints.delete_at(loc)
+          message "Breakpoint removed."
+        else
+          @breakpoints << [x, y]
+          message "Breakpoint set."
+        end
       end
     end
 
@@ -149,9 +155,9 @@ module Rubefunge
 
     # Returns command symbol from debugger_cmds and a vector of arguments
     def debug_cmd_parse(str)
-      argv = str.downcase.split(' ')
+      argv = str.scan(/"((?:\\.|[^"])*)"|(\S+)/).flatten.compact.map {|x| x.gsub(/\\(.)/, '\1')}
       cmd = argv.empty? ? :blank : self.class.debug_cmds[argv.shift]
-      return cmd, argv
+      return cmd.downcase, argv
     end
 
     # Execute and validate all commands except for quit.
@@ -169,7 +175,7 @@ module Rubefunge
             message "Invalid argument to command '#{cmd.to_s}'.", :error
           end
         elsif argc == 2
-          if argv[0] =~ /-?\d+/ and argv[1] =~ /-?\d+/
+          if argv[0] =~ /\d+/ and argv[1] =~ /\d+/
            toggle_breakpoint(argv[0].to_i, argv[1].to_i)
           else
             message "Arguments no '#{cmd.to_s}' must be integers.", :error

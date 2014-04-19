@@ -1,7 +1,17 @@
 require "test_helper"
 
 class PlayfieldTest < MiniTest::Test
-  def test_play_field_gets_padded_to_full_size
+
+  def test_nil_input_becomes_blank_playfield
+    input = nil
+
+    playfield =  Rubefunge::Playfield.new(input)
+
+    expected_string = ([' ' * 80] * 25).join "\n"
+    assert_equal(expected_string, playfield.to_s)
+  end
+
+  def test_playfield_gets_padded_to_full_size
     input = "v<\n>^"
 
     playfield =  Rubefunge::Playfield.new(input)
@@ -10,7 +20,7 @@ class PlayfieldTest < MiniTest::Test
     assert_equal(expected_string, playfield.to_s)
   end
 
-  def test_play_field_gets_trimmed_if_too_large
+  def test_playfield_gets_trimmed_if_too_large
     input = 'a' * 81
 
     playfield =  Rubefunge::Playfield.new(input)
@@ -35,4 +45,5 @@ class PlayfieldTest < MiniTest::Test
 
     assert_equal('*', playfield.get(1, 0))
   end
+
 end

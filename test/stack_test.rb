@@ -1,6 +1,7 @@
 require "test_helper"
 
 class StackTest < MiniTest::Test
+
   def test_push
     stack = Rubefunge::Stack.new [1 ,2 ,3]
 
@@ -92,4 +93,5 @@ class StackTest < MiniTest::Test
 
     assert_equal([], stack.to_a)
   end
+
 end
