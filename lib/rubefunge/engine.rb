@@ -56,10 +56,8 @@ module Rubefunge
       when RIGHT
         @pc_x += 1
       end
-      @pc_y += Playfield::FIELD_HEIGHT if @pc_y < 0
-      @pc_y -= Playfield::FIELD_HEIGHT if @pc_y >= Playfield::FIELD_HEIGHT
-      @pc_x += Playfield::FIELD_WIDTH if @pc_x < 0
-      @pc_x -= Playfield::FIELD_WIDTH if @pc_x >= Playfield::FIELD_WIDTH
+      @pc_y %= Playfield::FIELD_HEIGHT
+      @pc_x %= Playfield::FIELD_WIDTH
     end
 
     # Executes command for for given character

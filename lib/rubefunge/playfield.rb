@@ -4,20 +4,16 @@ module Rubefunge
     FIELD_HEIGHT  = 25
 
     def initialize(input = nil)
-      @field  = Array.new(FIELD_HEIGHT) {' ' * FIELD_WIDTH}
-      if input != nil
-        lines = input.split(/\r\n|\n|\r/)
-        lines.each_index do |i|
-          lines[i].rstrip!
-          @field[i].insert(0, lines[i])
-          @field[i].slice!(FIELD_WIDTH..-1)
-          warn "Input line has been truncated" if lines[i].length > FIELD_WIDTH
-        end
+      @field = input.nil? ? [] : input.lines.map do |line|
+        line = line.chomp.ljust FIELD_WIDTH
+        line.slice!(FIELD_WIDTH..-1)
+        line
       end
+      @field.concat(Array.new(FIELD_HEIGHT - input.lines.length) {' ' * FIELD_WIDTH})
     end
 
     def get(x, y)
-      return valid_pos?(x, y) ? @field[y][x] : -1
+      return valid_pos?(x, y) ? @field[y][x] : 0
     end
 
     def put(value, x, y)
