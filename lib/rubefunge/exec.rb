@@ -14,8 +14,8 @@ module Rubefunge
           Usage: #{$0} [options] [INPUT]
 
           Description:
-            Interprets Befunge programs.  INPUT is a file, and is mandatory
-            unless starting the debugger.
+            Rubefunge is Befunge-93 compliant interpreter and debugger
+            INPUT is a file, and is mandatory unless starting the debugger.
 
           Options:
         EOF
@@ -36,7 +36,7 @@ module Rubefunge
 
       file = @args.empty? ? :no_file : @args[0]
       if @options[:debug]
-        @interpreter = Debugger.new(file, @options[:runtime_opts])
+        @interpreter = Debugger::Debugger.new(file, @options[:runtime_opts])
       elsif !@options[:debug] and file != :no_file
         @interpreter = Interpreter.new(file, @options[:runtime_opts])
       else
