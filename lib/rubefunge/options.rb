@@ -1,19 +1,14 @@
 module Rubefunge
   class Options
 
-    attr_accessor :filename, :newline
+    attr_accessor :newline
 
     @defaults = {
-      :filename => :no_file,      # Name of file currently being interpreted
       :newline  => false,         # Should a new line be printed after output?
     }
 
     def self.defaults
       return @defaults
-    end
-
-    def self.valid_specs
-      return @valid_specs
     end
 
     def initialize(opts = {})

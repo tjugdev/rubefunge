@@ -28,9 +28,9 @@ module Rubefunge
         return @msg_prefixes
       end
 
-      def load_field(file = @filename)
+      def load_field(file)
         playfield = super
-        message("#{file} loaded.") unless file == :no_file
+        message("#{file} loaded.")
 
         playfield
       end
@@ -43,14 +43,9 @@ module Rubefunge
       end
 
       def reset
-        if @filename != :no_file
-          @engine.reset
-
-          @stepno = 0
-          message("#{@filename} reset.")
-        else
-          message("No program loaded.")
-        end
+        @engine.reset
+        @stepno = 0
+        message("#{@filename} reset.")
       end
 
       def step

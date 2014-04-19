@@ -1,3 +1,6 @@
+The debugger can be invoked by passing the -d flag to the interpreter.  Following is a list
+of valid commands the debugger recognizes
+
 quit
 q
     Quit.
@@ -5,6 +8,7 @@ q
 load [FILE]
 l [FILE]
     Load Befunge program specified by FILE.  If FILE isn't given, reload current program.
+    FILE may be surrounded by quotes if the path contains spaces
 
 reload
 rl
@@ -20,6 +24,14 @@ run
 break PC_X PC_Y
 b PC_X PC_Y
     Toggle program breakpoint at the instruction located at (PC_X, PC_Y).
+
+breakclear
+bc
+    Remove all breakpoints
+
+breaklist
+bl
+    Show a list of all active breakpoints
 
 info
 i

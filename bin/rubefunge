@@ -1,6 +1,15 @@
 #!/usr/bin/env ruby
 
 require "rubefunge/exec"
+
 p = Rubefunge::Exec.new(ARGV)
-p.parse
+
+begin
+  p.parse
+rescue ArgumentError, RuntimeError => e
+  $stderr.puts e.message
+  $stderr.puts "See #{$0} --help for more information"
+  exit false
+end
+
 p.run
