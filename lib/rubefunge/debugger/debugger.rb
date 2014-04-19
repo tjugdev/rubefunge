@@ -78,7 +78,7 @@ module Rubefunge
 
       def message(msg, type = :message)
         prefix = self.class.msg_prefixes[type]
-        print prefix, msg, "\n"
+        puts prefix, msg
       end
 
       private
@@ -171,13 +171,9 @@ module Rubefunge
             run_to_break
             print info if @display
           when :step
-            count = argc === 0 ? 1 : argv[0].to_x
-            if count <= 0
-              message("Invalid argument '#{count}' for command '#{cmd.to_s}'.", :error)
-            else
-              message("To many arguments for command '#{cmd.to_s}'.", :error)
-              return
-            end
+            count = argc === 0 ? 1 : argv[0].to_i
+            message("Invalid argument '#{count}' for command '#{cmd.to_s}'.", :error) if count <= 0
+
             count.times {step}
             print info if @display
         end

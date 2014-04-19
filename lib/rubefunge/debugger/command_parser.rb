@@ -37,6 +37,7 @@ module Rubefunge
             cmd = :run
             check_arguments(cmd, argv, [0])
           when "step", "s"
+            cmd = :step
             check_arguments(cmd, argv, [0, 1])
           else
             raise RuntimeError, "Unknown command #{cmd_str}"
