@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require "rubefunge"
 require "rubefunge/exec"
 p = Rubefunge::Exec.new(ARGV)
 p.parse

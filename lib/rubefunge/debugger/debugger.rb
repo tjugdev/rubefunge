@@ -1,5 +1,5 @@
 require "rubefunge/interpreter"
-require "rubefunge/debugger_command_parser"
+require "rubefunge/debugger/command_parser"
 
 module Rubefunge
   module Debugger

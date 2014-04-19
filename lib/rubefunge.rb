@@ -5,4 +5,4 @@ module Rubefunge
 end
 
 require "rubefunge/interpreter"
-require "rubefunge/debugger"
+require "rubefunge/debugger/debugger"

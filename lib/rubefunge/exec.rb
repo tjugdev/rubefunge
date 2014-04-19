@@ -1,5 +1,5 @@
+require "rubefunge"
 require "optparse"
-require "rubefunge/debugger"
 
 module Rubefunge
   class Exec
