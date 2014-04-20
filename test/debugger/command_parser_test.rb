@@ -2,10 +2,6 @@ require "test_helper"
 
 class DebuggerCommandParserTest < MiniTest::Test
 
-  def setup
-    @parser = Rubefunge::Debugger::CommandParser.new
-  end
-
   def test_parse_blank_input
     assert_parsed_command("  ", :blank, [])
   end
@@ -78,21 +74,21 @@ class DebuggerCommandParserTest < MiniTest::Test
 
   def test_parse_unknown_command
     assert_raises(RuntimeError) {|e|
-      @parser.parse!("notacommand")
+      Rubefunge::Debugger::CommandParser.parse!("notacommand")
       assert_equal("Unknown command: notacomand", e.message)
     }
   end
 
   private
   def assert_parsed_command(input, expected_cmd, expected_argv)
-    cmd, argv = @parser.parse!(input)
+    cmd, argv = Rubefunge::Debugger::CommandParser.parse!(input)
 
     assert_equal(expected_cmd, cmd)
     assert_equal(expected_argv, argv)
   end
 
   def assert_argument_error(input)
-    assert_raises(ArgumentError) { @parser.parse!(input) }
+    assert_raises(ArgumentError) { Rubefunge::Debugger::CommandParser.parse!(input) }
   end
 
 end

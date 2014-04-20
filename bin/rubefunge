@@ -2,14 +2,12 @@
 
 require "rubefunge/exec"
 
-p = Rubefunge::Exec.new(ARGV)
+rubefunge = Rubefunge::Exec.new(ARGV)
 
 begin
-  p.parse
+  rubefunge.run!
 rescue ArgumentError, RuntimeError => e
   $stderr.puts e.message
   $stderr.puts "See #{$0} --help for more information"
   exit false
 end
-
-p.run

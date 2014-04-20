@@ -2,7 +2,7 @@ module Rubefunge
   module Debugger
     class CommandParser
 
-      def parse! input
+      def self.parse! input
         argv = input.scan(/"((?:\\.|[^"])*)"|(\S+)/).flatten.compact.map {|x| x.gsub(/\\(.)/, '\1')}
         cmd_str = argv.shift || ""
 
@@ -46,7 +46,7 @@ module Rubefunge
       end
 
       private
-      def check_arguments(cmd, argv, expected)
+      def self.check_arguments(cmd, argv, expected)
         unless expected.include? argv.length
           raise ArgumentError, "Command #{cmd.to_s} requires #{expected.join(' or ')} arguments but found #{argv.length}"
         end

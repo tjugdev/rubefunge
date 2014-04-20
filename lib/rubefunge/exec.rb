@@ -9,7 +9,26 @@ module Rubefunge
       @options = {:runtime_opts => {}}
     end
 
-    def parse
+    def run!
+      parse!
+
+      if @args.length === 1
+        file = @args[0]
+        options = Options.new(@options[:runtime_opts])
+        engine = Engine.new(Playfield.from_file(file))
+
+        if @options[:debug]
+          run_debugger(Debugger::Debugger.new(engine, options))
+        else
+          run_interpreter(Interpreter.new(engine, options))
+        end
+      else
+        raise ArgumentError, "Invalid arguments"
+      end
+    end
+
+    private
+    def parse!
       option_parser = OptionParser.new do |opts|
         opts.banner = <<-EOF.gsub(/^ {10}/, '')
           Usage: #{$0} [options] FILE
@@ -33,23 +52,18 @@ module Rubefunge
       end
 
       option_parser.parse! @args
-
-      if @args.length === 1
-        file = @args[0]
-        options = Options.new(@options[:runtime_opts])
-
-        if @options[:debug]
-          @interpreter = Debugger::Debugger.new(file, options)
-        else
-          @interpreter = Interpreter.new(file, options)
-        end
-      else
-        raise ArgumentError, "Invalid arguments"
-      end
     end
 
-    def run
-      @interpreter.run
+    def run_interpreter(interpreter)
+        interpreter.run!
+    end
+
+    def run_debugger(debugger)
+      begin
+        debugger.io.print debugger.cmd_prompt
+        input = debugger.io.gets.chomp
+        done = debugger.process_input(input)
+      end until done
     end
 
   end

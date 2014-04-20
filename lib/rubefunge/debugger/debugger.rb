@@ -1,11 +1,15 @@
-require "rubefunge/interpreter"
+require "rubefunge/io"
+require "rubefunge/engine"
+require "rubefunge/options"
 require "rubefunge/debugger/command_parser"
 
 module Rubefunge
   module Debugger
-    class Debugger < Interpreter
+    class Debugger
 
-      @msg_prefixes = {:message => "", :warning => "Warning: ", :error => "Error: "}
+      attr_reader :io, :display
+
+      @@msg_prefixes = {:message => "", :warning => "Warning: ", :error => "Error: "}
 
       module PrintWithNewLine
         def print(*args)
@@ -13,77 +17,72 @@ module Rubefunge
         end
       end
 
-      def initialize(file, options, io = ::Rubefunge::IO.default)
-        super
+      def initialize(engine, options = Options.new, io = ::Rubefunge::IO.default)
+        @options = options
+        @engine = engine
+        @io = io
+
+        if @options.newline
+          @engine.io.writer = @engine.io.writer.clone
+          @engine.io.writer.extend PrintWithNewLine
+        end
 
         @breakpoints = []
         @display = false
         @stepno = 0
-
-        @command_parser = CommandParser.new
       end
 
-      def self.msg_prefixes
-        return @msg_prefixes
+      def cmd_prompt
+        "#{@stepno} > "
       end
 
-      def load_field(file)
-        playfield = super
-        message("#{file} loaded.")
-
-        playfield
-      end
-
-      def get_engine playfield
-        writer = @io.writer.clone
-        writer.extend PrintWithNewLine if @options.newline
-
-        Engine.new(playfield, ::Rubefunge::IO.new(@io.reader, writer))
-      end
-
-      def run
-        begin
-          @io.print "#{@stepno} > "
-          input = @io.reader.gets.chomp
+      def process_input(input)
           begin
-            cmd, argv = @command_parser.parse!(input)
+            cmd, argv = CommandParser.parse!(input)
             debug_cmd_process(cmd, argv)
+            message("Program terminated.") if !@engine.running
           rescue ArgumentError, RuntimeError => e
             message(e.message, :error)
           end
-        end until cmd == :quit
+
+        cmd == :quit
       end
 
       private
+      def load_file(file)
+        @engine.field = Playfield.from_file file
+        reset
+        message("#{file} loaded.")
+      end
+
       def message(msg, type = :message)
-        prefix = self.class.msg_prefixes[type]
+        prefix = @@msg_prefixes[type]
         @io.print prefix, msg, "\n"
       end
 
       def reset
         @engine.reset
         @stepno = 0
-        message("#{@filename} reset.")
+        message("Reset.")
       end
 
       def step
         if @engine.running
           @engine.step
           @stepno += 1
-          message("Program terminated.") if !@engine.running
         else
           message("Cannot step. No program running.")
         end
       end
 
       def info
-        dirs = ["up", "right", "down", "left"]
-        stringmode = @engine.stringmode ? "\tSTRINGMODE" : ""
-        cmd = @engine.field.get(@engine.pc_x, @engine.pc_y)
+        info = @engine.info(5)
+        stringmode = info[:stringmode] ? "\tSTRINGMODE" : ""
+        cmd = info[:current_character]
         cmd = "NOP" if cmd == " \t"
         return <<-EOF.gsub(/^ {8}/, '')
-          cmd: #{cmd}\tpc: (#{@engine.pc_x}, #{@engine.pc_y})\tdir: #{dirs[@engine.dir]}#{stringmode}
-          stack top 5: #{@engine.stack.tail(5).to_s}
+          cmd: #{cmd}\tpc: (#{info[:pc_x]}, #{info[:pc_y]})\tdir: #{info[:dir]}#{stringmode}
+          stack top 5: #{info[:stack_top].to_s}
         EOF
       end
 
@@ -115,6 +114,11 @@ module Rubefunge
         end
       end
 
+      def clear_breakpoints
+        @breakpoints = []
+        message("Breakpoints cleared.")
+      end
+
       def run_to_break
         if !@engine.running
           message("Cannot run. Program has ended.")
@@ -135,7 +139,7 @@ module Rubefunge
 
         case cmd
           when :breakclear
-            @breakpoints = []
+            clear_breakpoints
           when :breaklist
             list_breakpoints
           when :break
@@ -153,8 +157,7 @@ module Rubefunge
               reset
             else
               if File.file? argv[0]
-                init_engine(argv[0])
-                reset
+                load_file(argv[0])
               else
                 message("Cannot open #{argv[0]}. Does not exist.", :error)
               end

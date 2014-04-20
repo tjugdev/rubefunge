@@ -185,6 +185,25 @@ class EngineTest < MiniTest::Test
     end
   end
 
+  def test_info
+    field = Minitest::Mock.new
+    engine = Rubefunge::Engine.new(field)
+    engine.reset
+
+    field.expect(:get, '#', [0, 0])
+    info = engine.info(5)
+
+    expected_info = {
+        :dir => "right",
+        :stringmode => false,
+        :current_character => '#',
+        :pc_x => 0,
+        :pc_y => 0,
+        :stack_top => []
+    }
+    assert_equal(expected_info, info)
+  end
+
   private
   def run_for(input, io = Rubefunge::IO.default, &block)
     begin
@@ -199,10 +218,6 @@ class EngineTest < MiniTest::Test
     rescue Timeout::Error
       flunk("Test timed out.  Maybe caught in an infinite loop?")
     end
-  end
-
-  def mock_io
-    Rubefunge::IO.new(Minitest::Mock.new, Minitest::Mock.new)
   end
 
 end

@@ -10,13 +10,18 @@ module Rubefunge
     DOWN  = 2
     LEFT  = 3
 
-    attr_reader :running, :field, :pc_x, :pc_y, :dir, :stack, :stringmode
+    attr_reader :running, :field, :pc_x, :pc_y, :dir, :stack, :stringmode, :io
 
     def initialize(field, io = ::Rubefunge::IO.default)
       @running = false
 
-      @field = field
+      self.field = field
       @io = io
+    end
+
+    def field=(new_field)
+      @field = new_field
+      reset
     end
 
     # Reset program to be run from beginning.
@@ -30,14 +35,29 @@ module Rubefunge
       @running    = true
     end
 
+    def current_character
+      @field.get(@pc_x, @pc_y)
+    end
+
+    def info(stack_top_size)
+      dirs = ["up", "right", "down", "left"]
+      {
+        :dir => dirs[@dir],
+        :stringmode => @stringmode,
+        :current_character => current_character,
+        :pc_x => @pc_x,
+        :pc_y => @pc_y,
+        :stack_top => @stack.tail(stack_top_size)
+      }
+    end
+
     def step
-      process_char @field.get(@pc_x, @pc_y)
+      process_char(current_character)
       advance_pc
     end
 
     # Run program from beginning to end.
     def run
-      reset
       while @running
         step
       end
@@ -87,7 +107,7 @@ module Rubefunge
           val1 = @stack.pop
           val2 = @stack.pop
           if val1.zero?
-            @io.writer.print "Attempting to divide #{val2} by zero.  What should the result be? "
+            @io.print "Attempting to divide #{val2} by zero.  What should the result be? "
             val1 = gets.to_i
           end
           @stack.push(val2 / val1)
@@ -95,7 +115,7 @@ module Rubefunge
           val1 = @stack.pop
           val2 = @stack.pop
           if val1.zero?
-            @io.writer.print "Attempting to divide #{val2} by zero.  What should the result be? "
+            @io.print "Attempting to divide #{val2} by zero.  What should the result be? "
             val1 = gets.to_i
           end
           @stack.push(val2 % val1)
@@ -132,10 +152,10 @@ module Rubefunge
           @stack.pop
         when '.'
           val = @stack.pop
-          @io.writer.print val
+          @io.print val
         when ','
           val = @stack.pop
-          @io.writer.print val.chr
+          @io.print val.chr
         when '#'
           advance_pc
         when 'g'
@@ -148,10 +168,10 @@ module Rubefunge
           val = @stack.pop
           @field.put(val.chr, x, y)
         when '&'
-          val = @io.reader.gets.chomp
+          val = @io.gets.chomp
           @stack.push(val.to_i)
         when '~'
-          val = @io.reader.gets
+          val = @io.gets
           @stack.push(val.chr.ord)
         when '@'
           @running = false

@@ -1,7 +1,7 @@
 module Rubefunge
   class IO
 
-    attr_reader :reader, :writer
+    attr_accessor :reader, :writer
 
     def self.default
       new($stdin, $stdout)
