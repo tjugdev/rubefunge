@@ -91,47 +91,47 @@ class EngineTest < MiniTest::Test
   end
 
   def test_print_value_as_decimal
-    writer = MiniTest::Mock.new
-    writer.expect(:print, nil, [7])
+    io = mock_io
+    io.writer.expect(:print, nil, [7])
 
-    run_for '7.@', writer do |engine|
+    run_for '7.@', io do |engine|
       assert_equal([], engine.stack.to_a)
     end
 
-    assert writer.verify
+    assert(io.writer.verify)
   end
 
   def test_print_value_as_character
-    writer = MiniTest::Mock.new
-    writer.expect(:print, nil, ['q'])
+    io = mock_io
+    io.writer.expect(:print, nil, ['q'])
 
-    run_for '"q",@', writer do |engine|
+    run_for '"q",@', io do |engine|
       assert_equal([], engine.stack.to_a)
     end
 
-    assert writer.verify
+    assert(io.writer.verify)
   end
 
   def test_read_integer
-    reader = MiniTest::Mock.new
-    reader.expect(:gets, "812")
+    io = mock_io
+    io.reader.expect(:gets, "812")
 
-    run_for '&@', $stdout, reader do |engine|
+    run_for '&@', io do |engine|
       assert_equal([812], engine.stack.to_a)
     end
 
-    assert reader.verify
+    assert(io.reader.verify)
   end
 
   def test_read_character
-    reader = MiniTest::Mock.new
-    reader.expect(:gets, "stuff")
+    io = mock_io
+    io.reader.expect(:gets, "stuff")
 
-    run_for '~@', $stdout, reader do |engine|
+    run_for '~@', io do |engine|
       assert_equal(['s'.ord], engine.stack.to_a)
     end
 
-    assert reader.verify
+    assert(io.reader.verify)
   end
 
   def test_put_character
@@ -186,12 +186,12 @@ class EngineTest < MiniTest::Test
   end
 
   private
-  def run_for(input, writer = $stdout, reader = $stdout, &block)
+  def run_for(input, io = Rubefunge::IO.default, &block)
     begin
       Timeout::timeout(TIMEOUT_SECONDS) {
         field = Rubefunge::Playfield.new(input)
 
-        engine = Rubefunge::Engine.new(field, writer, reader)
+        engine = Rubefunge::Engine.new(field, io)
         engine.run
 
         yield engine if block_given?
@@ -199,6 +199,10 @@ class EngineTest < MiniTest::Test
     rescue Timeout::Error
       flunk("Test timed out.  Maybe caught in an infinite loop?")
     end
+  end
+
+  def mock_io
+    Rubefunge::IO.new(Minitest::Mock.new, Minitest::Mock.new)
   end
 
 end

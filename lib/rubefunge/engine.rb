@@ -1,3 +1,4 @@
+require "rubefunge/io"
 require "rubefunge/stack"
 require "rubefunge/playfield"
 
@@ -11,12 +12,11 @@ module Rubefunge
 
     attr_reader :running, :field, :pc_x, :pc_y, :dir, :stack, :stringmode
 
-    def initialize(field, writer = $stdout, reader = $stdin)
+    def initialize(field, io = ::Rubefunge::IO.default)
       @running = false
 
       @field = field
-      @writer = writer
-      @reader = reader
+      @io = io
     end
 
     # Reset program to be run from beginning.
@@ -87,7 +87,7 @@ module Rubefunge
           val1 = @stack.pop
           val2 = @stack.pop
           if val1.zero?
-            @writer.print "Attempting to divide #{val2} by zero.  What should the result be? "
+            @io.writer.print "Attempting to divide #{val2} by zero.  What should the result be? "
             val1 = gets.to_i
           end
           @stack.push(val2 / val1)
@@ -95,7 +95,7 @@ module Rubefunge
           val1 = @stack.pop
           val2 = @stack.pop
           if val1.zero?
-            @writer.print "Attempting to divide #{val2} by zero.  What should the result be? "
+            @io.writer.print "Attempting to divide #{val2} by zero.  What should the result be? "
             val1 = gets.to_i
           end
           @stack.push(val2 % val1)
@@ -132,10 +132,10 @@ module Rubefunge
           @stack.pop
         when '.'
           val = @stack.pop
-          @writer.print val
+          @io.writer.print val
         when ','
           val = @stack.pop
-          @writer.print val.chr
+          @io.writer.print val.chr
         when '#'
           advance_pc
         when 'g'
@@ -148,10 +148,10 @@ module Rubefunge
           val = @stack.pop
           @field.put(val.chr, x, y)
         when '&'
-          val = @reader.gets.chomp
+          val = @io.reader.gets.chomp
           @stack.push(val.to_i)
         when '~'
-          val = @reader.gets
+          val = @io.reader.gets
           @stack.push(val.chr.ord)
         when '@'
           @running = false

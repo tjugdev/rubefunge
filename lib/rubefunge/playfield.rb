@@ -4,6 +4,13 @@ module Rubefunge
     FIELD_WIDTH   = 80
     FIELD_HEIGHT  = 25
 
+    def self.from_file(file)
+      raise RuntimeError, "File #{file} not found" unless File.file? file
+
+      input = File.open(file, "r") {|f| f.read}
+      new(input)
+    end
+
     def initialize(input = nil)
       @field = input.nil? ? [] : input.lines.map do |line|
         line = line.chomp.ljust FIELD_WIDTH

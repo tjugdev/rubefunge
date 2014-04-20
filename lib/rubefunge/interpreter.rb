@@ -1,11 +1,13 @@
+require "rubefunge/io"
 require "rubefunge/engine"
 require "rubefunge/options"
 
 module Rubefunge
   class Interpreter
 
-    def initialize(file, options)
+    def initialize(file, options, io = ::Rubefunge::IO.default)
       @options = options
+      @io = io
       init_engine file
     end
 
@@ -16,21 +18,18 @@ module Rubefunge
     end
 
     def load_field(file)
-      raise RuntimeError, "File #{file} not found" unless File.file? file
-
       @filename = file
-      input = File.open(file, "r") {|f| f.read}
-      Playfield.new(input)
+      Playfield.from_file(file)
     end
 
     def get_engine playfield
-      Engine.new(playfield)
+      Engine.new(playfield, @io)
     end
 
     # Run program from beginning to end.
     def run
       @engine.run
-      puts if @options.newline
+      @io.print "\n" if @options.newline
     end
 
   end

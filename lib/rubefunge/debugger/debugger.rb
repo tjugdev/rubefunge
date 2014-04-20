@@ -9,12 +9,11 @@ module Rubefunge
 
       module PrintWithNewLine
         def print(*args)
-          super(*args)
-          puts
+          super(*args << "\n")
         end
       end
 
-      def initialize(file, options = {})
+      def initialize(file, options, io = ::Rubefunge::IO.default)
         super
 
         @breakpoints = []
@@ -36,10 +35,29 @@ module Rubefunge
       end
 
       def get_engine playfield
-        writer = $stdout
+        writer = @io.writer.clone
         writer.extend PrintWithNewLine if @options.newline
 
-        Engine.new(playfield, writer)
+        Engine.new(playfield, ::Rubefunge::IO.new(@io.reader, writer))
+      end
+
+      def run
+        begin
+          @io.print "#{@stepno} > "
+          input = @io.reader.gets.chomp
+          begin
+            cmd, argv = @command_parser.parse!(input)
+            debug_cmd_process(cmd, argv)
+          rescue ArgumentError, RuntimeError => e
+            message(e.message, :error)
+          end
+        end until cmd == :quit
+      end
+
+      private
+      def message(msg, type = :message)
+        prefix = self.class.msg_prefixes[type]
+        @io.print prefix, msg, "\n"
       end
 
       def reset
@@ -58,25 +76,6 @@ module Rubefunge
         end
       end
 
-      def run
-        begin
-          print "#{@stepno} > "
-          input = $stdin.gets.chomp
-          begin
-            cmd, argv = @command_parser.parse!(input)
-            debug_cmd_process(cmd, argv)
-          rescue ArgumentError, RuntimeError => e
-            message(e.message, :error)
-          end
-        end until cmd == :quit
-      end
-
-      def message(msg, type = :message)
-        prefix = self.class.msg_prefixes[type]
-        puts prefix, msg
-      end
-
-      private
       def info
         dirs = ["up", "right", "down", "left"]
         stringmode = @engine.stringmode ? "\tSTRINGMODE" : ""
@@ -107,12 +106,12 @@ module Rubefunge
         if @breakpoints.empty?
           message("No breakpoints set.")
         else
-          print "Breakpoints found at: "
+          @io.print "Breakpoints found at: "
           @breakpoints.each do |bp|
             x, y = bp
-            print "(#{x}, #{y})  "
+            @io.print "(#{x}, #{y})  "
           end
-          puts
+          @io.print "\n"
         end
       end
 
@@ -148,7 +147,7 @@ module Rubefunge
           when :display
             @display = !@display
           when :info
-            print info
+            @io.print info
           when :load
             if argc == 0
               reset
@@ -164,13 +163,13 @@ module Rubefunge
             reset
           when :run
             run_to_break
-            print info if @display
+            @io.print info if @display
           when :step
             count = argc === 0 ? 1 : argv[0].to_i
             message("Invalid argument '#{count}' for command '#{cmd.to_s}'.", :error) if count <= 0
 
             count.times {step}
-            print info if @display
+            @io.print info if @display
         end
       end
 
