@@ -1,5 +1,5 @@
 The debugger can be invoked by passing the -d flag to the interpreter.  Following is a list
-of valid commands the debugger recognizes
+of valid commands the debugger accepts:
 
 quit
 q
@@ -8,11 +8,11 @@ q
 load [FILE]
 l [FILE]
     Load Befunge program specified by FILE.  If FILE isn't given, reload current program.
-    FILE may be surrounded by quotes if the path contains spaces
+    FILE may be surrounded by quotes if the path contains spaces.
 
 reload
 rl
-    Same as 'load' with no arguments
+    Same as 'load' with no arguments: resets the currently loaded program.
 
 step [COUNT]
 s [COUNT]
@@ -27,11 +27,11 @@ b PC_X PC_Y
 
 breakclear
 bc
-    Remove all breakpoints
+    Remove all breakpoints.
 
 breaklist
 bl
-    Show a list of all active breakpoints
+    Show a list of all active breakpoints.
 
 info
 i
@@ -43,4 +43,5 @@ i
         - Top elements of the stack
 
 display
+d
     Toggle display of info after every step, or after each time the program breaks.
