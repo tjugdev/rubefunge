@@ -13,7 +13,8 @@ Once installed, tests can be run with `rake test`.
 
 Basic Usage
 -----------
-To run a program, run
+To run a Befunge program, run
   * `rubefunge FILE`     - for the interpreter
   * `rubefunge -d FILE`  - for the debugger
+
 See `rubefunge --help` for more info
