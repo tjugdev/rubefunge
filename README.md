@@ -1,13 +1,19 @@
 Rubefunge
 =========
-By Tristan Jugdev
 
-Rubefunge is a Befunge-93 compliant interpreter and debugger written in Ruby.
+Rubefunge is a [Befunge-93](http://esolangs.org/wiki/Befunge) compliant interpreter and debugger written in Ruby.
+
+To install, clone this repository and run:
+
+    gem install bundler
+    bundle install
+
+Once installed, tests can be run with `rake test`.
 
 
-Usage
------
+Basic Usage
+-----------
 To run a program, run
-  * `rubefunge [INPUT]`     - for the interpreter
-  * `rubefunge -d [INPUT]`  - for the debugger
+  * `rubefunge FILE`     - for the interpreter
+  * `rubefunge -d FILE`  - for the debugger
 See `rubefunge --help` for more info
