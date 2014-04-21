@@ -2,6 +2,8 @@ require "test_helper"
 
 class EngineTest < MiniTest::Test
 
+  # None of the tests should take more than few miliseconds, so if any test is still going after
+  # 1 second, it is safe to assume something went wroing and we should fail the test
   TIMEOUT_SECONDS = 1
 
   def test_add
@@ -91,47 +93,47 @@ class EngineTest < MiniTest::Test
   end
 
   def test_print_value_as_decimal
-    io = mock_io
-    io.writer.expect(:print, nil, [7])
+    io = Minitest::Mock.new
+    io.expect(:print, nil, [7])
 
     run_for '7.@', io do |engine|
       assert_equal([], engine.stack.to_a)
     end
 
-    assert(io.writer.verify)
+    assert(io.verify)
   end
 
   def test_print_value_as_character
-    io = mock_io
-    io.writer.expect(:print, nil, ['q'])
+    io = Minitest::Mock.new
+    io.expect(:print, nil, ['q'])
 
     run_for '"q",@', io do |engine|
       assert_equal([], engine.stack.to_a)
     end
 
-    assert(io.writer.verify)
+    assert(io.verify)
   end
 
   def test_read_integer
-    io = mock_io
-    io.reader.expect(:gets, "812")
+    io = Minitest::Mock.new
+    io.expect(:gets, "812")
 
     run_for '&@', io do |engine|
       assert_equal([812], engine.stack.to_a)
     end
 
-    assert(io.reader.verify)
+    assert(io.verify)
   end
 
   def test_read_character
-    io = mock_io
-    io.reader.expect(:gets, "stuff")
+    io = Minitest::Mock.new
+    io.expect(:gets, "stuff")
 
     run_for '~@', io do |engine|
       assert_equal(['s'.ord], engine.stack.to_a)
     end
 
-    assert(io.reader.verify)
+    assert(io.verify)
   end
 
   def test_put_character
@@ -188,7 +190,6 @@ class EngineTest < MiniTest::Test
   def test_info
     field = Minitest::Mock.new
     engine = Rubefunge::Engine.new(field)
-    engine.reset
 
     field.expect(:get, '#', [0, 0])
     info = engine.info(5)
@@ -202,6 +203,16 @@ class EngineTest < MiniTest::Test
         :stack_top => []
     }
     assert_equal(expected_info, info)
+  end
+
+  def test_step_no_increased_by_step
+    field = Rubefunge::Playfield.new("123")
+    engine = Rubefunge::Engine.new(field)
+
+    engine.step
+    assert_equal(1, engine.step_no)
+    engine.step
+    assert_equal(2, engine.step_no)
   end
 
   private

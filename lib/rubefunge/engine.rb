@@ -10,7 +10,7 @@ module Rubefunge
     DOWN  = 2
     LEFT  = 3
 
-    attr_reader :running, :field, :pc_x, :pc_y, :dir, :stack, :stringmode, :io
+    attr_reader :running, :field, :pc_x, :pc_y, :step_no, :dir, :stack, :stringmode, :io
 
     def initialize(field, io = ::Rubefunge::IO.default)
       @running = false
@@ -28,6 +28,7 @@ module Rubefunge
     def reset
       @pc_x       = 0
       @pc_y       = 0
+      @step_no    = 0
       @dir        = RIGHT
       # The stack is an INTEGER stack.  Any characters are pushed as their ASCII value
       @stack      = Stack.new
@@ -54,6 +55,7 @@ module Rubefunge
     def step
       process_char(current_character)
       advance_pc
+      @step_no += 1
     end
 
     # Run program from beginning to end.

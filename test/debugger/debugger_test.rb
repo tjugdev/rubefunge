@@ -16,9 +16,7 @@ class DebuggerTest < MiniTest::Test
   end
 
   def test_quit
-    test_parsed_command(:quit, []) do |done|
-      assert(done)
-    end
+    test_parsed_command(:quit, []) {|done| assert(done)}
   end
 
   def test_toggle_display
@@ -36,9 +34,7 @@ class DebuggerTest < MiniTest::Test
   def test_step_with_no_arguments
     @engine.expect(:running, true)
     @engine.expect(:step, nil)
-    test_parsed_command(:step, []) do |done|
-      refute(done)
-    end
+    test_parsed_command(:step, []) {|done| refute(done)}
   end
 
   def test_step_with_arguments
@@ -46,9 +42,7 @@ class DebuggerTest < MiniTest::Test
     @engine.expect(:step, nil)
     @engine.expect(:running, true)
     @engine.expect(:step, nil)
-    test_parsed_command(:step, [2]) do |done|
-      refute(done)
-    end
+    test_parsed_command(:step, [2]) {|done| refute(done)}
   end
 
   def test_info
@@ -67,27 +61,48 @@ class DebuggerTest < MiniTest::Test
     EOF
     @io.expect(:print, nil, [expected_info])
 
-    test_parsed_command(:info, []) do |done|
-      refute(done)
-    end
+    test_parsed_command(:info, []) {|done| refute(done)}
   end
 
   def test_reset
     @engine.expect(:reset, nil)
     @io.expect(:print, nil, ["", "Reset.", "\n"])
 
-    test_parsed_command(:reload, []) do |done|
-      refute(done)
-    end
+    test_parsed_command(:reload, []) {|done| refute(done)}
   end
 
   def test_load_with_no_arguments_resets
     @engine.expect(:reset, nil)
     @io.expect(:print, nil, ["", "Reset.", "\n"])
 
-    test_parsed_command(:load, []) do |done|
+    test_parsed_command(:load, []) {|done| refute(done)}
+  end
+
+  def test_toggle_breakpoint
+    @io.expect(:print, nil, ["", "Breakpoint set.", "\n"])
+    @io.expect(:print, nil, ["", "Breakpoint removed.", "\n"])
+
+    test_parsed_command(:break, ['8', '2']) do |done|
       refute(done)
+      assert_equal([[8, 2]], @debugger.breakpoints)
     end
+
+    test_parsed_command(:break, ['8', '2']) do |done|
+      refute(done)
+      assert_equal([], @debugger.breakpoints)
+    end
+  end
+
+  def test_list_and_clear_breakpoints
+    @io.expect(:print, nil, ["", "Breakpoint set.", "\n"])
+    @io.expect(:print, nil, ["", "Breakpoint set.", "\n"])
+    @io.expect(:print, nil, ["", "Breakpoints found at: (8, 2) (4, 5)", "\n"])
+    @io.expect(:print, nil, ["", "Breakpoints cleared.", "\n"])
+
+    test_parsed_command(:break, ['8', '2'])
+    test_parsed_command(:break, ['4', '5'])
+    test_parsed_command(:breaklist, []) {|done| refute(done)}
+    test_parsed_command(:breakclear, []) {|done| refute(done)}
   end
 
   private
@@ -95,7 +110,7 @@ class DebuggerTest < MiniTest::Test
     @engine.expect(:running, true)
     Rubefunge::Debugger::CommandParser.stub(:parse!, [cmd, argv]) do
       done = @debugger.process_input("")
-      yield done
+      yield done if block_given?
     end
   end
 

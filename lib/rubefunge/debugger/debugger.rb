@@ -7,7 +7,7 @@ module Rubefunge
   module Debugger
     class Debugger
 
-      attr_reader :io, :display
+      attr_reader :io, :display, :breakpoints
 
       @@msg_prefixes = {:message => "", :warning => "Warning: ", :error => "Error: "}
 
@@ -29,11 +29,10 @@ module Rubefunge
 
         @breakpoints = []
         @display = false
-        @stepno = 0
       end
 
       def cmd_prompt
-        "#{@stepno} > "
+        "#{@engine.step_no} > "
       end
 
       def process_input(input)
@@ -62,14 +61,12 @@ module Rubefunge
 
       def reset
         @engine.reset
-        @stepno = 0
         message("Reset.")
       end
 
       def step
         if @engine.running
           @engine.step
-          @stepno += 1
         else
           message("Cannot step. No program running.")
         end
@@ -105,12 +102,7 @@ module Rubefunge
         if @breakpoints.empty?
           message("No breakpoints set.")
         else
-          @io.print "Breakpoints found at: "
-          @breakpoints.each do |bp|
-            x, y = bp
-            @io.print "(#{x}, #{y})  "
-          end
-          @io.print "\n"
+          message(@breakpoints.inject("Breakpoints found at:") {|acc, bp| acc << " (#{bp[0]}, #{bp[1]})"})
         end
       end
 
